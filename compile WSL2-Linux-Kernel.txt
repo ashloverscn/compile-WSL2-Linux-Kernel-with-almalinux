@@ -1,0 +1,106 @@
+####compile WSL2-Linux-Kernel
+#### change to root user
+sudo su
+
+#### assuming system has been updated and all repos are refreshed 
+yum check-update && yum upgrade -y
+zypper ref && zypper up -y
+apt-get update && apt-get upgrade -y
+
+#### Install Dependencies 
+#### fedora\redhat
+dnf install epel-release -y
+
+dnf install build-essential git bc gcc gcc-c++ kernel-devel dwarves make flex bison openssl-devel libssl-dev ncurses-devel elfutils-libelf-devel libelf-dev kernel-devel kernel-headers python3 perl dkms make tar zip xz gzip bzip2 -y
+
+#### centos
+yum install epel-release -y
+
+yum install build-essential git bc gcc gcc-c++ kernel-devel dwarves make flex bison openssl-devel libssl-dev ncurses-devel elfutils-libelf-devel libelf-dev kernel-devel kernel-headers python3 perl dkms make tar zip xz gzip bzip2 -y
+
+#### ubuntu
+apt-get install epel-release -y
+apt-get install build-essential git bc gcc gcc-c++ kernel-devel dwarves make flex bison openssl-devel libssl-dev ncurses-devel elfutils-libelf-devel libelf-dev kernel-devel kernel-headers python3 perl dkms make tar zip xz gzip bzip2 -y
+
+#### opensuse
+apt-get install epel-release -y
+apt-get install build-essential git bc gcc gcc-c++ kernel-devel dwarves make flex bison openssl-devel libssl-dev ncurses-devel elfutils-libelf-devel libelf-dev kernel-devel kernel-headers python3 perl dkms make tar zip xz gzip bzip2 -y
+
+########################################################################
+#### Download Kernel Source
+cd /usr/src
+#mkdir -p kernels
+#cd /kernels
+
+########################################################################
+wget -O linux-msft-wsl-5.15.90.1.tar.gz https://github.com/microsoft/WSL2-Linux-Kernel/archive/refs/tags/linux-msft-wsl-5.15.90.1.tar.gz
+tar -xvzf linux-msft-wsl-5.15.90.1.tar.gz -C -d /usr/src/$(uname -r)
+
+## or 
+
+#wget -O linux-msft-wsl-5.15.90.1.zip https://github.com/microsoft/WSL2-Linux-Kernel/archive/refs/tags/linux-msft-wsl-5.15.90.1.zip
+#unzip linux-msft-wsl-5.15.90.1.zip -d /usr/src/$(uname -r)
+
+########################################################################
+#### specific branch-tag clone 
+#git clone --branch linux-msft-wsl-5.15.90.1 https://github.com/microsoft/WSL2-Linux-Kernel.git
+
+## or 
+#### all version huge clone 
+#git clone https://github.com/microsoft/WSL2-Linux-Kernel.git 
+#git checkout --branch linux-msft-wsl-5.15.y   ## branch name
+#git checkout --branch linux-msft-wsl-5.15     ## version tag
+#git fetch
+#### specific branch clone 
+#git clone --branch linux-msft-wsl-5.15.y https://github.com/microsoft/WSL2-Linux-Kernel.git
+#### specific commit hash clone 
+#git init
+#git remote add origin https://github.com/microsoft/WSL2-Linux-Kernel.git
+#git fetch origin 4aeb7776ebf6d022dfe49fc8abf4ece02d523e84
+#git reset --hard FETCH_HEAD
+#####################################################################
+##copy the kernel source .config file to kernel dir 
+cd /usr/src/5.15.90.1-microsoft-standard-WSL2
+#\cp -rv /boot/config-$(uname -r) .config
+#\cp -rv ./Microsoft/config-wsl .config
+zcat /proc/config.gz > .config
+ls -a | grep .config
+
+
+
+#make menuconfig
+make -j$(nproc)
+make -j$(nproc) modules 
+make modules_install
+make headers_install
+make install
+
+make clean
+make mrproper
+
+
+zcat /proc/config.gz > .config
+
+
+make bzImage
+
+cp -v arch/x86/boot/bzImage /boot/vmlinuz-linuxAB
+
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+
+sudo grubby --set-default /boot/vmlinuz-5.16.9
+
+grubby --info=ALL | more
+grubby --default-index
+grubby --default-kernel
+
+$ sudo update-initramfs -c -k 5.16.9
+$ sudo update-grub
+
+reboot
+
+uname -mrs
+
+uname -a
+
+sudo dnf config-manager --set-enabled powertools \

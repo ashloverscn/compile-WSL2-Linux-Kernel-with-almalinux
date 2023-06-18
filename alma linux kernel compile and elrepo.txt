@@ -1,0 +1,108 @@
+yum in git bc gcc gcc-c++ kernel-devel dwarves \
+make flex bison openssl-devel elfutils-libelf-devel \
+ncurses-devel openssl-devel elfutils-libelf-devel python3
+
+
+sudo dnf config-manager --set-enabled powertools
+
+curl -L -o linux-5.16.9.tar.xz \
+https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.16.9.tar.xz
+
+tar xvJf linux-5.*.tar.xz
+
+cd linux-5.*
+
+make  O=~/build/kernel mrproper
+
+cp /boot/config-`uname -r` ~/build/kernel/.config
+
+make O=~/build/kernel menuconfig
+
+sed -ri '/CONFIG_SYSTEM_TRUSTED_KEYS/s/=.+/=""/g' ~/build/kernel/.config
+
+grep NTFS ~/build/kernel/.config
+
+sed  -i 's/^EXTRAVERSION.*/EXTRAVERSION = -custom/'  Makefile
+
+make O=~/build/kernel kernelversion
+
+make -j 8 nproc
+
+make  O=~/build/kernel**
+
+~/build/kernel/arch/x86/boot/bzImage
+
+sudo make O=~/build/kernel modules_install
+
+sudo cp ~/build/kernel/arch/x86/boot/bzImage  \
+/boot/vmlinuz-5.16.9-custom
+
+sudo cp -v  ~/build/kernel/System.map \
+/boot/System.map-5.16.9-custom
+
+sudo kernel-install \
+add  5.16.9-custom /boot/vmlinuz-5.16.9-custom
+
+sudo reboot
+
+uname -r
+
+modinfo ntfs
+
+######################################################################
+https://www.linuxshelltips.com/install-linux-kernel-almalinux-8/
+
+sudo dnf update -y 
+
+sudo dnf -y install https://www.elrepo.org/elrepo-release-8.el8.elrepo.noarch.rpm
+
+sudo rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+
+sudo dnf --disablerepo="*" --enablerepo="elrepo-kernel" list available | grep kernel-ml
+
+sudo dnf --disablerepo="*" --enablerepo="elrepo-kernel" list available | grep kernel-lt
+
+sudo dnf --enablerepo=elrepo-kernel install kernel-ml-{devel, headers}
+
+sudo dnf --enablerepo=elrepo-kernel install kernel-lt
+
+sudo reboot
+
+yum install kernel-cross-headers.x86_64 kernel-headers.x86_64
+
+sudo ln -s /usr/src/linux-headers-4.15.0-51-generic /usr/src/linux-headers-4.4.0-18362-Microsoft
+
+#https://www.tecmint.com/install-kernel-headers-in-centos-7/
+
+sudo dnf -y remove kernel-headers
+
+sudo yum -y makecache --refresh
+
+sudo yum -y install kernel-headers
+
+
+yum -y install kernel-devel
+dnf -y install kernel-devel
+
+yum -y install kernel-headers
+dnf -y install kernel-headers
+
+ls -l /usr/src/kernels/$(uname -r) 
+
+https://www.kernel.org/
+
+yum install gcc kernel-devel kernel-headers perl dkms make bzip2 firefox -y
+
+###################################################################################
+
+cd /user/src
+git clone https
+wget https
+tar 
+cd WSL2-Linux-Kernel-linux-msft-wsl-5.15.90.1
+make headers_install
+
+
+
+
+
